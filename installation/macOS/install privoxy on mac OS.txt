@@ -1,0 +1,47 @@
+sudo /usr/bin/dscl /Local/Default -create /Groups/_privoxy
+sudo /usr/bin/dscl /Local/Default -append /Groups/_privoxy RecordName privoxy
+sudo /usr/bin/dscl /Local/Default -create /Groups/_privoxy Password *
+sudo /usr/bin/dscl /Local/Default -create /Groups/_privoxy PrimaryGroupID 601
+sudo /usr/bin/dscl /Local/Default -create /Groups/_privoxy RealName "privoxy users"
+sudo /usr/bin/dscl /Local/Default -create /Users/_privoxy
+sudo /usr/bin/dscl /Local/Default -append /Users/_privoxy RecordName privoxy
+sudo /usr/bin/dscl /Local/Default -create /Users/_privoxy NFSHomeDirectory /var/empty
+sudo /usr/bin/dscl /Local/Default -create /Users/_privoxy Password *
+sudo /usr/bin/dscl /Local/Default -create /Users/_privoxy PrimaryGroupID 601
+sudo /usr/bin/dscl /Local/Default -create /Users/_privoxy RealName "privoxy server"
+sudo /usr/bin/dscl /Local/Default -create /Users/_privoxy UniqueID 601
+sudo /usr/bin/dscl /Local/Default -create /Users/_privoxy UserShell /usr/bin/false
+
+
+# Compilation de Mac OS
+autoheader
+autoconf
+./configure
+make
+sudo make -s install USER=privoxy GROUP=privoxy
+
+cat > /Library/LaunchDaemons/org.privoxy.plist << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>org.privoxy.launchd.privoxy</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/usr/local/sbin/privoxy</string>
+		<string>--user</string>
+		<string>privoxy</string>
+		<string>--pidfile</string>
+		<string>/var/run/privoxy.pid</string>
+		<string>/usr/local/etc/privoxy/config</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+</dict>
+</plist>
+EOF
+
+sudo chown root:wheel /Library/LaunchDaemons/org.privoxy.plist
+sudo chmod 644 /Library/LaunchDaemons/org.privoxy.plist
+

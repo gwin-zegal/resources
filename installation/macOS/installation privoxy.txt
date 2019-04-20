@@ -1,0 +1,36 @@
+export build=/opt/devtools # or wherever you'd like to build
+sudo mkdir -p $build
+
+cd /tmp
+curl -OL http://ftpmirror.gnu.org/autoconf/autoconf-2.68.tar.gz
+tar xzf autoconf-2.68.tar.gz
+cd autoconf-2.68
+./configure --prefix=/usr/local
+make
+sudo make install
+#export PATH=$PATH:$build/autotools-bin/bin
+
+cd /tmp
+curl -OL http://ftpmirror.gnu.org/automake/automake-1.11.tar.gz
+tar xzf automake-1.11.tar.gz
+cd automake-1.11
+./configure --prefix=/usr/local
+make
+sudo make install
+
+cd /tmp
+curl -OL http://ftpmirror.gnu.org/libtool/libtool-2.4.tar.gz
+tar xzf libtool-2.4.tar.gz
+cd libtool-2.4
+./configure --prefix=/usr/local
+make
+sudo make install
+
+sudo /usr/bin/dscl /Local/Default -create /Groups/_privoxy
+sudo /usr/bin/dscl /Local/Default -append /Groups/_privoxy RecordName privoxy
+sudo /usr/bin/dscl /Local/Default -create /Groups/_privoxy Password *
+sudo /usr/bin/dscl /Local/Default -create /Groups/_privoxy PrimaryGroupID 601
+sudo /usr/bin/dscl /Local/Default -create /Groups/_privoxy RealName "privoxy users"
+sudo /usr/bin/dscl /Local/Default -create /Users/_privoxy
+
+sudo make -s install  USER=privoxy GROUP=privoxy
